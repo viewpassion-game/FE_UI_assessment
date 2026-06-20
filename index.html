@@ -203,6 +203,56 @@
   .mascot.brand{width:58px;height:58px}
   .mascot.tab{width:66px;height:66px}
   .mascot.sm{width:42px;height:42px}
+  /* ===== scorehead safety (no overlap) ===== */
+  .scorehead{flex-wrap:wrap}
+
+  /* ===== Tablet ===== */
+  @media(max-width:760px){
+    .wrap{padding:16px 13px 70px}
+    .top{gap:12px}
+    .top .spacer{display:none}
+    .pillrow{width:100%}
+    .btns{width:100%}
+    .toolbar select, .toolbar input{min-width:0; flex:1 1 140px}
+    .area{grid-template-columns:96px 1fr 46px}
+
+    /* Stacked task table: each row becomes a card */
+    .table-scroll{max-height:none; overflow:visible; border:none}
+    .vtable{table-layout:auto; width:100%}
+    .vtable thead{display:none}
+    .vtable, .vtable tbody, .vtable tr, .vtable td{display:block; width:auto}
+    .vtable tr{border:1px solid var(--line); border-radius:14px; margin-bottom:12px; padding:10px 12px; background:#fff; box-shadow:var(--shadow-sm)}
+    .vtable td{border:none; padding:7px 0}
+    .vtable td+td{border-top:1px dashed var(--line)}
+    .vtable td::before{content:attr(data-label); display:block; font-size:10.5px; font-weight:700; letter-spacing:.04em; color:var(--indigo); margin-bottom:4px}
+    .vtable td.c-num{display:inline-block; padding:0; color:var(--muted2); font-size:11px}
+    .vtable td.c-num::before{display:none}
+    .vtable td.c-num:before{content:"#"}
+    .vtable td.c-task::before{display:none}
+    td select.vsel, td textarea.note{width:100%}
+    td textarea.note{min-height:44px}
+    .col-resizer{display:none}
+    .resize-hint{display:none}
+  }
+
+  /* ===== Phone ===== */
+  @media(max-width:560px){
+    .tabs{flex-direction:column}
+    .tab{padding:13px 15px}
+    .tab .mini{position:static; transform:none; text-align:left; margin-top:8px; display:flex; align-items:baseline; gap:8px}
+    .tab .mini .big{font-size:22px}
+    .tab .mini .lab{font-size:11px}
+    .mascot.tab{width:54px;height:54px}
+    .top .ttl{font-size:15px}
+    .dial{width:96px;height:96px}
+    .dial .val b{font-size:23px}
+    .scorehead{gap:12px}
+    .krow .knm{font-size:12.5px}
+    button.bn{flex:1 1 auto}
+    .entry .imgs img{height:88px}
+    .logform{grid-template-columns:1fr}
+  }
+
   @media print{ .mascot{display:none !important} }
   .vtable{table-layout:fixed; width:100%}
   .vtable th{position:relative}
@@ -330,7 +380,7 @@
             </select>
           </div>
           <div class="resize-hint">เคล็ดลับ: ลากขอบหัวคอลัมน์เพื่อย่อ/ขยายความกว้าง · ข้อความจะตัดบรรทัดอัตโนมัติ ไม่ถูกตัด</div>
-          <div style="max-height:560px; overflow:auto; border:1px solid var(--line); border-radius:10px">
+          <div class="table-scroll" style="max-height:560px; overflow:auto; border:1px solid var(--line); border-radius:10px">
             <table>
               <thead><tr>
                 <th style="width:44px">#</th>
@@ -743,11 +793,11 @@ function renderTasks(){
     const det = t.detail + (t.note? `  ·  <span style="color:var(--muted2)">tracker: ${t.note}</span>`:'');
     const opts = VOPTS.map(o=>`<option value="${o.v}" ${cur.v===o.v?'selected':''}>${o.t}</option>`).join('');
     tr.innerHTML=`
-      <td style="color:var(--muted)">${t.n}</td>
-      <td><div class="catlab">${t.cat}</div><div class="tname">${t.task}</div><div class="tdet">${det}</div></td>
-      <td><button class="rep ${getRep(t.n)?'y':'n'}" onclick="toggleReported(${t.n})" title="คลิกเพื่อสลับสถานะที่พนักงานรายงาน">${getRep(t.n)?'แจ้งเสร็จ':'ยังไม่เสร็จ'}</button></td>
-      <td><select class="vsel" data-v="${cur.v}" onchange="setVerify(${t.n},this.value,this)">${opts}</select></td>
-      <td><textarea class="note" rows="1" placeholder="ระบุบัค/สิ่งที่ต้องแก้" oninput="setNote(${t.n},this.value); autoGrow(this)">${escapeHtml(cur.note||'')}</textarea></td>`;
+      <td class="c-num" data-label="#" style="color:var(--muted)">${t.n}</td>
+      <td class="c-task" data-label="งาน"><div class="catlab">${t.cat}</div><div class="tname">${t.task}</div><div class="tdet">${det}</div></td>
+      <td class="c-rep" data-label="รายงาน"><button class="rep ${getRep(t.n)?'y':'n'}" onclick="toggleReported(${t.n})" title="คลิกเพื่อสลับสถานะที่พนักงานรายงาน">${getRep(t.n)?'แจ้งเสร็จ':'ยังไม่เสร็จ'}</button></td>
+      <td class="c-ver" data-label="ผลตรวจจริง"><select class="vsel" data-v="${cur.v}" onchange="setVerify(${t.n},this.value,this)">${opts}</select></td>
+      <td class="c-note" data-label="บัค / หมายเหตุ"><textarea class="note" rows="1" placeholder="ระบุบัค/สิ่งที่ต้องแก้" oninput="setNote(${t.n},this.value); autoGrow(this)">${escapeHtml(cur.note||'')}</textarea></td>`;
     body.appendChild(tr);
   });
   body.querySelectorAll('textarea.note').forEach(autoGrow);
