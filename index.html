@@ -183,6 +183,7 @@
   .entry .del{margin-left:auto}
   .x{cursor:pointer; color:var(--muted); font-size:12px; border:1px solid var(--line2); border-radius:9px; padding:4px 10px; background:#fff}
   .x:hover{color:var(--red); border-color:var(--red)}
+  .progbadge{font-size:11px; font-weight:700; color:var(--indigo); background:rgba(108,99,255,.10); border:1px solid rgba(108,99,255,.25); padding:3px 10px; border-radius:999px}
   .review-note{margin-top:10px; font-size:12.5px; line-height:1.55; color:#8a5a12;
     background:rgba(255,159,67,.12); border:1px solid rgba(255,159,67,.4); border-left:3px solid var(--amber);
     border-radius:10px; padding:9px 12px; white-space:pre-wrap}
@@ -203,6 +204,29 @@
   .mascot.brand{width:58px;height:58px}
   .mascot.tab{width:66px;height:66px}
   .mascot.sm{width:42px;height:42px}
+  .aigrid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px}
+  @media(max-width:760px){ .aigrid{grid-template-columns:1fr} }
+  .aisum{margin-top:0}
+  .aisum-top{display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap}
+  .aisum-actions{margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .cloudbtn{background:var(--grad); color:#fff; border:none; font-weight:700}
+  .cloudbtn:hover{filter:brightness(1.05)} .cloudbtn:disabled{opacity:.6; cursor:default}
+  .aibtn{background:var(--grad); color:#fff; border:none; font-weight:700}
+  .aibtn:hover{filter:brightness(1.05)}
+  .aibtn:disabled{opacity:.6; cursor:default}
+  .stalebadge{font-size:11px; font-weight:700; color:#c9761b; background:rgba(255,159,67,.16); padding:4px 10px; border-radius:999px}
+  .aisum-text{width:100%; min-height:150px; margin-top:14px; font-family:var(--body); font-size:13.5px; line-height:1.6; padding:14px; border:1px solid var(--line); border-radius:12px; resize:vertical; background:#fff; color:var(--ink)}
+  .aisum-text:focus{outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px rgba(108,99,255,.12)}
+  .aisum-foot{display:flex; align-items:center; gap:12px; margin-top:10px}
+  .aimeta{font-size:11.5px; color:var(--muted2); margin-right:auto}
+  @media(max-width:560px){ .aisum-actions{margin-left:0; width:100%} .aibtn{flex:1 1 auto} }
+
+  .ovedit{font-size:11px; font-weight:700; color:var(--indigo); background:rgba(108,99,255,.10); border:1px solid rgba(108,99,255,.25); padding:2px 9px; border-radius:999px; cursor:pointer; margin-left:6px}
+  .ovedit:hover{filter:brightness(.97)}
+  .oved-ta{width:100%; min-height:66px; font-family:var(--body); font-size:12.5px; line-height:1.5; padding:9px 11px; border:1px solid var(--line); border-radius:10px; resize:vertical; margin-top:3px; background:#fff; color:var(--ink)}
+  .oved-ta:focus{outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px rgba(108,99,255,.12)}
+  .oved-actions{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap}
+
   .ovsum{margin-top:14px; border-top:1px dashed var(--line); padding-top:12px}
   .ovsum-h{font-size:11px; font-weight:800; letter-spacing:.05em; color:var(--indigo); margin-bottom:9px}
   .ovsum-g{margin-bottom:9px}
@@ -341,7 +365,8 @@
     <div class="spacer"></div>
     <div class="pillrow" id="metaPills"></div>
     <div class="btns">
-      <span class="saved" id="savedFlag">● บันทึกอัตโนมัติ</span>
+      <button class="bn cloudbtn" id="cloudSaveBtn" onclick="cloudSave()">💾 บันทึกขึ้นระบบ</button>
+      <span class="saved" id="syncFlag">◌ กำลังเชื่อมระบบ…</span>
       <button class="bn ghost" onclick="exportJSON()">ส่งออก JSON</button>
       <button class="bn ghost" onclick="document.getElementById('importFile').click()">นำเข้า JSON</button>
       <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importJSON(event)">
@@ -365,6 +390,42 @@
       <div class="eyebrow">ภาพรวมการประเมิน</div>
       <div class="hh-sub">สรุปคะแนนและสถานะของทั้งสองคน · กดการ์ดเพื่อดูรายละเอียดแบบเต็ม</div>
     </div>
+<div class="aigrid">
+      <div class="card aisum">
+        <div class="aisum-top">
+          <div>
+            <div class="eyebrow">สรุป AI · Frontend · F</div>
+            <div class="hint" style="margin-top:5px">สร้างสรุปจากข้อมูลล่าสุดของคนนี้ · แก้ไข/บันทึกเองได้</div>
+          </div>
+          <div class="aisum-actions">
+            <span id="aiStale-fe" class="stalebadge" style="display:none">ข้อมูลอัปเดต · ควรสรุปใหม่</span>
+            <button class="bn aibtn" id="aiBtn-fe" onclick="genAISummary('fe')">✨ สรุปด้วย AI</button>
+          </div>
+        </div>
+        <textarea id="aiText-fe" class="aisum-text" placeholder="กด ‘สรุปด้วย AI’ เพื่อสร้างสรุป แล้วแก้ไขได้ตามต้องการ จากนั้นกด ‘บันทึกสรุป’" oninput="markAiEdited('fe')"></textarea>
+        <div class="aisum-foot">
+          <span id="aiMeta-fe" class="aimeta"></span>
+          <button class="bn ghost" onclick="saveAISummary('fe')">บันทึกสรุป</button>
+        </div>
+      </div>
+      <div class="card aisum">
+        <div class="aisum-top">
+          <div>
+            <div class="eyebrow">สรุป AI · Designer · InvisG™</div>
+            <div class="hint" style="margin-top:5px">สร้างสรุปจากข้อมูลล่าสุดของคนนี้ · แก้ไข/บันทึกเองได้</div>
+          </div>
+          <div class="aisum-actions">
+            <span id="aiStale-ui" class="stalebadge" style="display:none">ข้อมูลอัปเดต · ควรสรุปใหม่</span>
+            <button class="bn aibtn" id="aiBtn-ui" onclick="genAISummary('ui')">✨ สรุปด้วย AI</button>
+          </div>
+        </div>
+        <textarea id="aiText-ui" class="aisum-text" placeholder="กด ‘สรุปด้วย AI’ เพื่อสร้างสรุป แล้วแก้ไขได้ตามต้องการ จากนั้นกด ‘บันทึกสรุป’" oninput="markAiEdited('ui')"></textarea>
+        <div class="aisum-foot">
+          <span id="aiMeta-ui" class="aimeta"></span>
+          <button class="bn ghost" onclick="saveAISummary('ui')">บันทึกสรุป</button>
+        </div>
+      </div>
+    </div>
     <div class="tabs">
     <div class="tab ovcard" id="tab-fe" onclick="showView('fe')">
       <div style="display:flex; gap:12px; align-items:center">
@@ -377,19 +438,7 @@
       </div>
       <div class="mini"><div class="big" id="tabFeScore">0</div><div class="lab">คะแนนรวม</div></div>
       <div class="ovstat" id="feOv"></div>
-      <div class="ovsum">
-        <div class="ovsum-h">สรุปโดยรวม</div>
-        <div class="ovsum-g good"><span class="lbl">จุดเด่น</span>
-          <ul><li>รับงานครอบคลุมหลายส่วนของระบบ และอัปเดตความคืบหน้าในชีตต่อเนื่อง</li></ul>
-        </div>
-        <div class="ovsum-g grow"><span class="lbl">ที่ต้องพัฒนาต่อ</span>
-          <ul>
-            <li>งานที่แจ้งว่าเสร็จยังมีบัคหลุดถึงทีมอื่น — ควรตรวจเอง (self-QA) ให้ใช้ได้จริงก่อนส่ง</li>
-            <li>หลายจุดที่ frontend ปรับเองได้ ยังรอ UI หรือเลื่อนเป็นเฟส 2 — เน้นทำให้พร้อมใช้ ไม่ส่งต่อไปมา</li>
-            <li>สัดส่วน “ผ่านจริง” เทียบกับที่รายงานยังต่ำ — ความเร็วและการปิดงานยังไม่ทันจังหวะที่ต้องการ</li>
-          </ul>
-        </div>
-      </div>
+      <div class="ovsum" id="ovsum-fe" onclick="event.stopPropagation()"></div>
       <button class="bn detailbtn" onclick="event.stopPropagation(); showView('fe')">ดูรายละเอียด →</button>
     </div>
     <div class="tab ovcard" id="tab-ui" onclick="showView('ui')">
@@ -403,19 +452,7 @@
       </div>
       <div class="mini"><div class="big" id="tabUiScore">0</div><div class="lab">คะแนนรวม</div></div>
       <div class="ovstat" id="uiOv"></div>
-      <div class="ovsum">
-        <div class="ovsum-h">สรุปโดยรวม</div>
-        <div class="ovsum-g good"><span class="lbl">จุดเด่น</span>
-          <ul><li>ละเอียด พิถีพิถัน และสื่อสาร/อัปเดตงานสม่ำเสมอ</li></ul>
-        </div>
-        <div class="ovsum-g grow"><span class="lbl">ที่ต้องพัฒนาต่อ</span>
-          <ul>
-            <li>ราว 12 วันยังอยู่ช่วง IA/wireframe และวนแก้หลายรอบ ยังไม่ถึง Hi-Fi/Prototype ตามเป้า</li>
-            <li>งานหลายเวอร์ชันต่างกันที่เลย์เอาต์เป็นหลัก ยังไม่สะท้อนกลยุทธ์/มุมธุรกิจที่ต่างกันชัด</li>
-            <li>มักรอรับทิศทางก่อนลงมือ — อยากเห็นการริเริ่มและคิดเผื่อถึงภาพรวมธุรกิจมากขึ้น</li>
-          </ul>
-        </div>
-      </div>
+      <div class="ovsum" id="ovsum-ui" onclick="event.stopPropagation()"></div>
       <button class="bn detailbtn" onclick="event.stopPropagation(); showView('ui')">ดูรายละเอียด →</button>
     </div>
     </div>
@@ -634,6 +671,7 @@ const SEED_VERIFY = {"1": {"v": "ok", "note": "ตรวจ Demo จริง: N
 const SEED_VERIFY_V2 = [{"n": "1", "oldv": "ok", "set": {"v": "bug", "note": "ตรวจ Demo + แชต F: Nav ครบ แต่พอเลื่อน (sticky) สีเปลี่ยนเป็นขาว มองแท็บไม่เห็น — เป็นบั๊ก ต้องแก้ให้คงสีเดิม"}}, {"n": "33", "oldv": "ok", "set": {"v": "bug", "note": "ตรวจ Demo + แชต F: หน้า Publishing โครงครบ แต่ยังใช้คำ 'Upcoming Soon' ต้องแก้เป็น 'Coming Soon' ให้ครบทุกที่"}}, {"n": "7", "oldv": "bug", "set": {"v": "bug", "note": "ตรวจ Demo + แชต F: Sign Up มีแค่ email/password/confirm — ต้องเพิ่ม tick box ยอมรับเงื่อนไข + hyperlink ไป Terms/Privacy; สเปกยังมี first/middle/last + check/close icons"}}, {"n": "42", "ifMissing": true, "set": {"v": "bug", "note": "แชต F (19 มิ.ย.): assign Role แล้วระบบไม่บันทึก (เคส Studio/Brand = Phase 2 จึงยังเซฟไม่ได้) — Admin/Referrer/Influencer ควรเซฟได้จริง · อิงแชต ตรวจ login เองอีกที"}}, {"n": "46", "ifMissing": true, "set": {"v": "bug", "note": "แชต F (19 มิ.ย.): Admin Games — เลือก game category หลายอันแต่ขึ้นอันเดียว + ข้อมูลหาย (revenue share/multi-genre/Revenue Set-up/Game Owner) ต้องแก้ให้บันทึกได้จริง · อิงแชต ตรวจ login เองอีกที"}}];
 const SEED_REVIEWS = {"608008": "ส่ง: Content plan + IA แรก + low-fi 3 แบบ\nต้องพัฒนา: รอบแรกยังไม่ตอบโจทย์ (ผังขาดหน้า Our Service, ยังไม่โชว์ศักยภาพ/ผลงาน) — ควรรีเสิร์ชเชิงรุกและเข้าใจธุรกิจตั้งแต่ต้น ไม่รอฟีดแบ็กทีละจุด", "608009": "ส่ง: ปรับ content + layout แรกหลังแก้\nต้องพัฒนา: ยังแก้ตามที่บอกเป็นข้อ ๆ ยังไม่เห็นการคิดเชิงกลยุทธ์/ผลกระทบทางธุรกิจด้วยตัวเอง (stats เทียบคู่แข่ง, การสร้างความเชื่อมั่น, จุดเด่นของ Work)", "608010": "ส่ง: wireframe A & B + tool tags\nต้องพัฒนา: ประเด็นเดิมยังหลุด (stats ค้าง, redundancy, buzzwords) สะท้อนการตรวจงานตัวเองไม่พอ และยังไม่เจาะลึกอุตสาหกรรมระดับที่ลูกค้า B2B ใช้ตัดสินใจ", "608011": "ส่ง: wireframe + context plan 3 แบบ\nต้องพัฒนา: ทำหลายเวอร์ชันแต่ต่างกันแค่ layout วิธีเล่าเรื่องเหมือนกัน — ทุ่มไปกับปริมาณมากกว่าการตัดสินใจเชิงกลยุทธ์ ความเร็ว/โฟกัสยังไม่พอกับจังหวะแบบ startup", "608012": "ส่ง: รีเสิร์ช + เสนอ 3 ทิศทางกลยุทธ์ (Conversion/Brand Story/Problem-Solution)\nต้องพัฒนา: เป็นก้าวที่ดี แต่มาหลังถูกชี้ว่า 3 แบบเดิมไม่ต่างเชิงกลยุทธ์ — การคิดระดับนี้ควรริเริ่มเองตั้งแต่ต้น", "608015": "ส่ง: Master IA + ดราฟต์กลยุทธ์ 2 แบบ\nต้องพัฒนา: ทิศทางดีขึ้น แต่หน้า Work ยังตื้น/About ยังลอย ขาดมุม Business Impact และความเชี่ยวชาญที่ลูกค้าใช้ตัดสินใจจ้าง", "608016": "ส่ง: ปรับ Work/About + เพิ่ม Insights + mock\nต้องพัฒนา: ปรับตามคำแนะนำได้ดี แต่ยังเป็นลักษณะรอรับทิศทางมากกว่าริเริ่มเอง", "608017": "ส่ง: Content map (ไม่ใช้ Lorem Ipsum)\nต้องพัฒนา: เนื้อหายังเหมือน software house รับจ้างทั่วไป ยังไม่สะท้อน DNA/จุดขายเฉพาะของบริษัท", "608018": "ส่ง: ปรับเป็น Gaming One-Stop (Data+AI) + จัดลำดับ service ใหม่\nต้องพัฒนา: มาถูกทางหลังได้ positioning ชัด ๆ — แต่ทิศทางแบบนี้ควรมาจากความเข้าใจธุรกิจของตัวเอง ไม่ใช่รอป้อน", "608019": "ส่ง: wireframe Home+Service อย่างละ 3 แบบ (Product/Identity/Capability-First) พร้อมเหตุผลเชิงกลยุทธ์\nต้องพัฒนา: รอบนี้คมขึ้น ต้องรักษาระดับนี้และทำให้เร็วขึ้น\nภาพรวม: ผ่านมา ~12 วันยังอยู่แค่ช่วง IA/wireframe ยังไม่ถึง Hi-Fi/Prototype ตามเป้า ถือว่าช้ากว่าที่คาดสำหรับ startup ที่ต้องการความเร็ว การแข่งขันสูง และความคิดสร้างสรรค์ที่คิดเผื่อถึงภาพรวมธุรกิจ — สไตล์ค่อยเป็นค่อยไป/รอรับคำสั่งจะพาบริษัทไปไม่ถึงเป้า"};
 const SEED_VERIFY_V3 = {"1": {"old": "ตรวจ Demo + แชต F: Nav ครบ แต่พอเลื่อน (sticky) สีเปลี่ยนเป็นขาว มองแท็บไม่เห็น — เป็นบั๊ก ต้องแก้ให้คงสีเดิม", "set": {"v": "bug", "note": "ตรวจ Demo + แชต F: Nav ครบ แต่พอเลื่อน (sticky) สีเปลี่ยนเป็นขาว มองแท็บไม่เห็น — เป็นบั๊ก ต้องแก้ให้คงสีเดิม · จุดนี้แก้ฝั่ง FE (CSS) ได้เอง ไม่ต้องรอ UI/พี่ก็อต — ต้องพร้อมปรับให้ใช้ได้จริง ไม่ทำตามดีไซน์เดิมจนงานใช้ไม่ได้"}}, "42": {"old": "แชต F (19 มิ.ย.): assign Role แล้วระบบไม่บันทึก (เคส Studio/Brand = Phase 2 จึงยังเซฟไม่ได้) — Admin/Referrer/Influencer ควรเซฟได้จริง · อิงแชต ตรวจ login เองอีกที", "set": {"v": "bug", "note": "แชต F (19 มิ.ย.): assign Role แล้วระบบไม่บันทึก (เคส Studio/Brand = Phase 2 จึงยังเซฟไม่ได้) — Admin/Referrer/Influencer ควรเซฟได้จริง · อิงแชต ตรวจ login เองอีกที · ชื่อ publisher/role ที่ทำได้ ควรทำให้บันทึกได้เลย ไม่เลื่อนเป็น Phase 2 ถ้าทำได้จริง — เน้นงานที่ใช้ได้ ไม่โยนไปมา"}}, "46": {"old": "แชต F (19 มิ.ย.): Admin Games — เลือก game category หลายอันแต่ขึ้นอันเดียว + ข้อมูลหาย (revenue share/multi-genre/Revenue Set-up/Game Owner) ต้องแก้ให้บันทึกได้จริง · อิงแชต ตรวจ login เองอีกที", "set": {"v": "bug", "note": "แชต F (19 มิ.ย.): Admin Games — เลือก game category หลายอันแต่ขึ้นอันเดียว + ข้อมูลหาย (revenue share/multi-genre/Revenue Set-up/Game Owner) ต้องแก้ให้บันทึกได้จริง · อิงแชต ตรวจ login เองอีกที · ถ้าแก้ฝั่ง FE ให้เลือก multi-genre/บันทึกได้จริงก่อนได้ ควรทำเลย ไม่รอ backend อย่างเดียว"}}, "36": {"ifMissing": true, "set": {"v": "no", "note": "แชต F: ติด cookie เลยจะไปถามพี่นน/พี่วิว — แต่หัวหน้ายืนยันว่า FE จัดการ cookie ทั่วไป (ไม่เกี่ยวความปลอดภัย) ได้เอง ควรลงมือทำให้ใช้ได้จริง ไม่ต้องรอ/โยน"}}};
+const SEED_ENTRIES_CSV = {"608008": {"progress": "IA + Wireframe 3 แบบ", "body": "เริ่มงานเว็บบริษัท: ทำ Content Planning + IA ตั้งต้น และเสนอ Low-fi wireframe หน้า Home 3 แบบ", "review": "IA รอบแรกยังไม่ผ่าน — ต้องโชว์ศักยภาพ/ผลงานบริษัทมากขึ้น, Nav มีเมนู Our Service แต่ผังไม่มีหน้านั้น, ลูกค้าควรรู้ก่อนว่าเราทำอะไรได้ก่อนจะรู้ว่าเคยทำวงการไหน, 'Industry we've worked with' ซ้ำ, ฟอร์ม Contact ต้องคัดกรองลูกค้ามากขึ้น · เน้นงานมีคุณภาพ ลองถาม AI / ดูเว็บตัวอย่าง และค้นคว้าเพิ่ม"}, "608009": {"progress": "IA + Wireframe 3 แบบ", "body": "ปรับเพิ่ม content + นำ reference มาใช้ เสนอ IA + wireframe (รอบหลังแก้)", "review": "Stats ถ้าจะโชว์แล้วน้อยกว่าคู่แข่งอาจไม่ใช่กลยุทธ์ที่ดี, รายละเอียด Service ต้องสร้างความเชื่อมั่นให้ได้มากกว่านี้, หน้า Work ลูกค้าอยากรู้ 'จุดเด่น' ไม่ใช่แค่เคยทำอะไร · วางโครงให้เกิด Business Impact และคิดนอกกรอบมากขึ้น"}, "608010": {"progress": "IA + Wireframe 2 แบบ", "body": "เอา state ออก เพิ่ม context และ tool tags ต่อ service · ส่ง wireframe 2 แบบ", "review": "Stats ยังค้างอยู่, แก้ Redundancy ของเนื้อหา, เลี่ยง Buzzwords ซ้ำที่ไม่มีข้อมูลรองรับ, นักลงทุน/ลูกค้า B2B ดูว่าเรารู้ลึกในอุตสาหกรรมแค่ไหน ไม่ใช่แค่หน้าเว็บสวย · ทบทวนโครงสร้างเพิ่ม"}, "608011": {"progress": "IA + Wireframe 3 แบบ", "body": "เพิ่มพื้นที่โชว์ความเชี่ยวชาญใน IA · ส่ง wireframe 3 แบบ (ก่อนพักไปทำ Final IA/Content)", "review": "IA ควรเพิ่มพื้นที่โชว์ความรู้/ความเชี่ยวชาญแทนเคสลูกค้าที่ยังน้อย, Our Service กับ How we work ยังซ้ำซ้อน, โครงหน้า Work ยังตื้น · พัก wireframe ก่อน ขอ Final IA+Content — ที่ทำมาต่างกันแค่ Layout วิธีเล่าเรื่องยังเหมือนกัน อยากให้แต่ละแบบสะท้อนกลยุทธ์โน้มน้าวที่ต่างกันจริง (เช่น Conversion / Brand Story)"}, "608012": {"progress": "IA (เสนอ 3 ทิศทางกลยุทธ์)", "body": "รีเสิร์ชแล้วเสนอ 3 ทิศทางให้เลือก: 1) Conversion 2) Brand Story 3) Problem-Solution (แล้วค่อยขึ้น wireframe)", "review": "ยังไม่ต้องแยกร่าง 3 แบบทันที — ทำ Master IA ที่รวม Content ให้ครบและ Final 1 เวอร์ชันก่อน แล้วค่อยนำไปจัดน้ำหนักเป็น 3 กลยุทธ์ · ย้ำ: เพิ่มพื้นที่โชว์ความเชี่ยวชาญ, ลดความซ้ำ Service/How we work, ขยายโครงหน้า Work"}, "608015": {"progress": "Master IA + Wireframe draft 2 แบบ", "body": "ทำ Master IA (รวม content เวอร์ชันเดียว) + ร่าง context 2 แบบ — เสนอยึดกลยุทธ์รายหน้า (Home=Brand Story, Service=Conversion) และขอตัด Problem-Solution ออกก่อน", "review": "แนะนำทำหน้า Insights/Resources แยกเป็นเมนูหลัก (Knowledge Hub) เชื่อมกลับไป Service เพื่อสร้าง Lead, หน้า Work ยังตื้นไม่มี Business Impact (รีเสิร์ช Case Study Layout), About ปรับให้ไม่ลอย ใส่ข้อมูลความเชี่ยวชาญ · ย้ำ: ลูกค้าจ้างเพราะ 'วิธีแก้ปัญหา' ไม่ใช่ Brand Story — อย่าทิ้ง Problem-Solving"}, "608016": {"progress": "IA + Wireframe 2 แบบ (Work/About + Insights mock)", "body": "ปรับ Work/About + เพิ่ม insight และ Mock wireframe หน้า Insights", "review": "ภาพรวม Master IA เริ่มโอเค · ขั้นต่อไป: วางผังเนื้อหาแต่ละส่วน (hero / teaser / details) เป็นตาราง ไม่ใช้ Lorem Ipsum แล้วค่อยจัด Hierarchy ใน wireframe 3 แบบตามวัตถุประสงค์ (อ้างอิงเพิ่ม: persona.ly, appquantum, company profile)"}, "608017": {"progress": "Content Sheet (ผังเนื้อหา)", "body": "ทำผังเนื้อหา (Content Sheet) ของแต่ละ section ตาม Master IA · ไม่ใช้ Lorem Ipsum (ส่งเป็น Google Sheets)", "review": "เนื้อหายังเหมือน Software House รับจ้างทำเว็บทั่วไป · ปรับ DNA/จุดแข็งเป็น 'Gaming One-Stop สตูดิโอเกมที่ขับเคลื่อนด้วย Data + AI' (จุดแข็ง Game/Data/AI บริการอื่นเป็นส่วนสนับสนุน), เลี่ยงคำกว้างเช่น 'We cover the full stack' เปลี่ยนเป็นคำที่สะท้อน Business Impact (เช่น Data-Driven Game Publishing & Full-Stack Tech Solutions)"}, "608018": {"progress": "Content Sheet (Gaming One-Stop)", "body": "ปรับ content ให้เป็น Gaming One-Stop มากขึ้น + จัดลำดับ service ใหม่ให้เกมมาก่อน + ปรับ How we work ตามข้อมูลที่ได้รับ (Google Sheets)", "review": "โอเค · ขั้นต่อไปทำ wireframe 3 แบบ เนื้อหาชุดเดียวกันแต่จัด Hierarchy/กลยุทธ์เล่าเรื่องต่างกัน, No Lorem Ipsum, ทุกหน้ามีเป้าหมายธุรกิจ + CTA, อธิบายเหตุผลการจัดวางได้ · ทดสอบ: เปิดหน้า Home ภายใน 5 วิ คนเข้าใจไหมว่าบริษัททำธุรกิจอะไร"}, "608019": {"progress": "Wireframe Home + Service อย่างละ 3 แบบ", "body": "วาง wireframe Home + Service อย่างละ 3 แบบ: Product-First (ดันผลงานขึ้นก่อน) / Identity-First (ชูจุดยืน+ดัน Insights) / Capability-First (สมดุล เข้าใจ business model เร็ว) พร้อมเหตุผล", "review": "เดินหน้าด้วยโครง 'Product-First' (เหมาะกับ DNA เกมสตูดิโอที่สุด) · ข้อควรระวัง: ถ้าจัด Grid ขนาดเท่ากันหมดจะดูเป็น 'แคตตาล็อกรับทำเว็บทั่วไป' ไม่มีจุดโฟกัสสายตา นักลงทุนจะไม่รู้ว่าเราเก่งสุดเรื่องอะไร · นำ Product-First ไปอัปเดตเนื้อหาจริง + แทรกโลโก้พาร์ทเนอร์ แล้วส่งตรวจก่อนเริ่ม Visual Design"}};
 function ensureSeed(st){
   try{
     if(!st._entriesSeededV1){
@@ -659,6 +697,11 @@ function ensureSeed(st){
       (st.ui&&st.ui.entries||[]).forEach(e=>{ const r=SEED_REVIEWS[String(e.id)]; if(r && !e.review) e.review=r; });
       st._entriesReviewedV1 = true;
     }
+    if(!st._entriesCsvV2){
+      (st.ui&&st.ui.entries||[]).forEach(e=>{ const c=SEED_ENTRIES_CSV[String(e.id)]; if(c){ e.progress=c.progress; e.body=c.body; e.review=c.review; } });
+      st._entriesCsvV2 = true;
+    }
+    if(!st._ovsumV1){ st.ovsum = st.ovsum || JSON.parse(JSON.stringify(OVSUM_DEFAULT)); st._ovsumV1=true; }
     if(!st._scoresRecV2){
       const eq=(o,a)=>o&&a&&['comm','tech','speed','qual'].every(k=>Number(o[k])===a[k]);
       const OLDfe={comm:4,tech:3,speed:3,qual:4}, OLDui={comm:5,tech:3,speed:4,qual:4};
@@ -725,13 +768,10 @@ function load(){
 }
 let saveTimer=null;
 function save(){
-  try{ localStorage.setItem(LSKEY, JSON.stringify(state)); flashSaved('● บันทึกแล้ว'); }
-  catch(e){ flashSaved('⚠ บันทึกในเครื่องไม่ได้ — กรุณาส่งออก JSON', true); }
+  try{ localStorage.setItem(LSKEY, JSON.stringify(state)); /* local cache */; }
+  catch(e){ /* local cache failed */ }
 }
-function flashSaved(msg, warn){
-  const el=document.getElementById('savedFlag'); el.textContent=msg;
-  el.style.color = warn? 'var(--amber)':'var(--green)';
-}
+function flashSaved(msg, warn){ /* sync indicator handled by setSync */ }
 function queueSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(save, 350); }
 
 function bind(view, field, val){ state[view][field]=val; queueSave(); if(field.indexOf('decision')>=0) {} }
@@ -843,7 +883,7 @@ function toggleReported(n){
   state.fe.reported = state.fe.reported || {};
   state.fe.reported[n] = !getRep(n);
   setCookie('vp_rep_'+n, state.fe.reported[n]?'1':'0');
-  renderTasks(); queueSave();
+  renderTasks(); queueSave(); try{refreshAiMeta();}catch(e){}
 }
 function getV(n){ return state.fe.verify[n] || {v:'unset', note:''}; }
 function initResizers(){
@@ -1008,6 +1048,7 @@ function renderEntries(){ try{renderOverview&&renderOverview();}catch(e){}
         <span class="date">${fmtDate(e.date)}</span>
         <span class="tag ${e.mood}">${MOODLAB[e.mood]||''}</span>
         ${e.title?`<span style="font-weight:600">${escapeHtml(e.title)}</span>`:''}
+        ${e.progress?`<span class="progbadge">ส่งงาน: ${escapeHtml(e.progress)}</span>`:''}
         <span style="margin-left:auto; display:flex; gap:6px">
           <button class="x" onclick="editEntry(${e.id})">แก้ไข</button>
           <button class="x del" onclick="delEntry(${e.id})">ลบ</button>
@@ -1028,6 +1069,139 @@ function lb(id,i){
 }
 
 /* ---------- tabs / export / reset ---------- */
+
+function dataSig(person){
+  let v=person+'|';
+  if(person==='fe'){
+    const s=state.fe.scores||{}; v+=['comm','tech','speed','qual'].map(x=>s[x]||0).join(',')+'|';
+    SEED_TASKS.forEach(t=>{ v+=t.n+(getRep(t.n)?'1':'0')+(getV(t.n).v||'-')+((getV(t.n).note||'').length); });
+  } else {
+    const s=state.ui.scores||{}; v+=['comm','tech','speed','qual'].map(x=>s[x]||0).join(',')+'|';
+    v+='E'+(state.ui.entries||[]).length;
+    (state.ui.entries||[]).forEach(e=>{ v+=(e.date||'')+(e.progress||'').length+(e.review||'').length; });
+  }
+  return v;
+}
+const KPILAB={comm:'สื่อสาร/ประสานงาน',tech:'การปรับใช้เทคโนโลยี',speed:'ความเร็ว/ตรงเวลา',qual:'คุณภาพ/ความถูกต้อง'};
+function buildSummaryPrompt(person){
+  const L=[];
+  L.push('คุณคือผู้ช่วยฝ่ายบุคคล สรุปผลการประเมินพนักงาน 1 คนของสตูดิโอเกม (สภาพแวดล้อม startup ที่ต้องการความเร็ว การแข่งขันสูง และความคิดสร้างสรรค์ที่คิดถึงภาพรวมธุรกิจ).');
+  L.push('เขียนภาษาไทย โทนสุภาพ สร้างสรรค์ ไม่โจมตี. ให้หัวข้อ "จุดเด่น" 1-2 ข้อ และ "ที่ต้องพัฒนาต่อ" 2-3 ข้อ เป็น bullet สั้นกระชับ ปิดท้ายด้วยข้อเสนอแนะ 1 บรรทัด. ห้ามแต่งข้อมูลเกินจากที่ให้. ความยาวรวมไม่เกิน ~140 คำ.');
+  if(person==='fe'){
+    const tot=weighted('fe');
+    const kp=Object.keys(KPILAB).map(x=>KPILAB[x]+' '+(state.fe.scores[x]||0)+'/10').join(', ');
+    let ok=0,bug=0,rep=0,notes=[];
+    SEED_TASKS.forEach(t=>{ if(getRep(t.n))rep++; const vv=getV(t.n); if(vv.v==='ok')ok++; else if(vv.v==='bug'){bug++; if(vv.note&&notes.length<7)notes.push('• '+vv.note);} });
+    L.push('\n[Frontend Developer: F·jaturaporn] คะแนนรวมถ่วงน้ำหนัก '+tot+'/100. KPI: '+kp+'. รายงานว่าเสร็จ '+rep+'/'+SEED_TASKS.length+' แต่ตรวจจริงผ่าน '+ok+' พบบัค '+bug+'. ประเด็นบัค/ที่ต้องแก้ที่ตรวจพบ:');
+    L.push(notes.join('\n')||'(ไม่มีบันทึก)');
+  } else {
+    const tot=weighted('ui');
+    const kp=Object.keys(KPILAB).map(x=>KPILAB[x]+' '+(state.ui.scores[x]||0)+'/10').join(', ');
+    L.push('\n[UI/UX Designer: InvisG] คะแนนรวมถ่วงน้ำหนัก '+tot+'/100. KPI: '+kp+'. บันทึกงานรายวัน (วันที่ – งานที่ส่ง – ความเห็นผู้ประเมิน):');
+    const ents=(state.ui.entries||[]).slice().sort((a,b)=>a.date<b.date?-1:1);
+    ents.forEach(e=>{ L.push('• '+e.date+' – '+(e.progress||e.title||'')+' – '+(e.review||'').slice(0,150)); });
+  }
+  return L.join('\n');
+}
+function aiStore(){ state.aiSummary = state.aiSummary || {}; return state.aiSummary; }
+function refreshAiMeta(person){
+  const persons = person? [person] : ['fe','ui'];
+  persons.forEach(p=>{
+    const m=document.getElementById('aiMeta-'+p); const a=(state.aiSummary||{})[p];
+    if(m){ if(a&&a.ts){ const d=new Date(a.ts); m.textContent='อัปเดตล่าสุด: '+d.toLocaleString('th-TH')+(a.edited?' · แก้ไขโดยผู้ดูแล':''); } else m.textContent='ยังไม่มีสรุป'; }
+    const st=document.getElementById('aiStale-'+p);
+    if(st){ const changed=a&&a.sig&&a.sig!==dataSig(p); st.style.display=changed?'':'none'; }
+  });
+}
+function persistAi(person,text){
+  aiStore()[person]={ text:text, ts:Date.now(), sig:dataSig(person), edited:false };
+  save(); refreshAiMeta(person);
+}
+async function genAISummary(person){
+  const btn=document.getElementById('aiBtn-'+person); const ta=document.getElementById('aiText-'+person);
+  const old=btn.textContent; btn.disabled=true; btn.textContent='กำลังสรุป…';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:buildSummaryPrompt(person)}]})});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    ta.value=text||'(ไม่มีผลลัพธ์จากโมเดล)'; persistAi(person, ta.value);
+  }catch(err){
+    alert('สรุปด้วย AI ไม่สำเร็จ: '+err.message+'\n(ฟีเจอร์นี้ทำงานเมื่อเปิดในสภาพแวดล้อม Artifact ของ Claude — ระหว่างนี้พิมพ์/แก้สรุปเองแล้วกดบันทึกได้)');
+  }finally{ btn.disabled=false; btn.textContent=old; }
+}
+function saveAISummary(person){
+  const ta=document.getElementById('aiText-'+person);
+  aiStore()[person]={ text:ta.value, ts:Date.now(), sig:dataSig(person), edited:true };
+  save(); refreshAiMeta(person);
+  const b=event&&event.target; if(b){ const t=b.textContent; b.textContent='บันทึกแล้ว ✓'; setTimeout(()=>b.textContent=t,1200); }
+}
+function markAiEdited(person){ /* persisted on save */ }
+function restoreAiSummary(){
+  ['fe','ui'].forEach(p=>{ const ta=document.getElementById('aiText-'+p); const a=(state.aiSummary||{})[p];
+    if(ta && a && typeof a.text==='string') ta.value=a.text; });
+  refreshAiMeta();
+}
+
+
+const OVSUM_DEFAULT={
+  fe:{ good:["รับงานครอบคลุมหลายส่วนของระบบ และอัปเดตความคืบหน้าในชีตต่อเนื่อง"],
+       grow:["งานที่แจ้งว่าเสร็จยังมีบัคหลุดถึงทีมอื่น — ควรตรวจเอง (self-QA) ให้ใช้ได้จริงก่อนส่ง",
+             "หลายจุดที่ frontend ปรับเองได้ ยังรอ UI หรือเลื่อนเป็นเฟส 2 — เน้นทำให้พร้อมใช้ ไม่ส่งต่อไปมา",
+             "สัดส่วน “ผ่านจริง” เทียบกับที่รายงานยังต่ำ — ความเร็วและการปิดงานยังไม่ทันจังหวะที่ต้องการ"] },
+  ui:{ good:["ละเอียด พิถีพิถัน และสื่อสาร/อัปเดตงานสม่ำเสมอ"],
+       grow:["ราว 12 วันยังอยู่ช่วง IA/wireframe และวนแก้หลายรอบ ยังไม่ถึง Hi-Fi/Prototype ตามเป้า",
+             "งานหลายเวอร์ชันต่างกันที่เลย์เอาต์เป็นหลัก ยังไม่สะท้อนกลยุทธ์/มุมธุรกิจที่ต่างกันชัด",
+             "มักรอรับทิศทางก่อนลงมือ — อยากเห็นการริเริ่มและคิดเผื่อถึงภาพรวมธุรกิจมากขึ้น"] }
+};
+function getOvsum(p){ const o=(state.ovsum&&state.ovsum[p])||OVSUM_DEFAULT[p]; return {good:o.good||[], grow:o.grow||[]}; }
+function renderOvsum(p){
+  const host=document.getElementById('ovsum-'+p); if(!host) return;
+  const o=getOvsum(p);
+  const li=a=>a.map(x=>`<li>${escapeHtml(x)}</li>`).join('')||'<li style="color:var(--muted2)">—</li>';
+  host.innerHTML=`<div class="ovsum-h">สรุปโดยรวม <button class="ovedit" onclick="editOvsum('${p}')">✏️ แก้ไข</button></div>
+    <div class="ovsum-g good"><span class="lbl">จุดเด่น</span><ul>${li(o.good)}</ul></div>
+    <div class="ovsum-g grow"><span class="lbl">ที่ต้องพัฒนาต่อ</span><ul>${li(o.grow)}</ul></div>`;
+}
+function editOvsum(p){
+  const host=document.getElementById('ovsum-'+p); if(!host) return;
+  const o=getOvsum(p);
+  host.innerHTML=`<div class="ovsum-h">แก้ไขสรุปโดยรวม</div>
+    <label class="fl">จุดเด่น (พิมพ์บรรทัดละ 1 ข้อ)</label>
+    <textarea id="ovGood-${p}" class="oved-ta">${escapeHtml(o.good.join('\n'))}</textarea>
+    <label class="fl" style="margin-top:8px">ที่ต้องพัฒนาต่อ (พิมพ์บรรทัดละ 1 ข้อ)</label>
+    <textarea id="ovGrow-${p}" class="oved-ta">${escapeHtml(o.grow.join('\n'))}</textarea>
+    <div class="oved-actions">
+      <button class="bn aibtn" id="ovAiBtn-${p}" onclick="aiOvsum('${p}')">✨ ให้ AI ช่วยร่าง</button>
+      <button class="bn" onclick="saveOvsum('${p}')">บันทึก</button>
+      <button class="bn ghost" onclick="renderOvsum('${p}')">ยกเลิก</button>
+    </div>`;
+}
+function saveOvsum(p){
+  const g=document.getElementById('ovGood-'+p).value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const w=document.getElementById('ovGrow-'+p).value.split('\n').map(s=>s.trim()).filter(Boolean);
+  state.ovsum=state.ovsum||{}; state.ovsum[p]={good:g, grow:w};
+  save(); renderOvsum(p);
+}
+async function aiOvsum(p){
+  const btn=document.getElementById('ovAiBtn-'+p); const old=btn.textContent; btn.disabled=true; btn.textContent='กำลังร่าง…';
+  try{
+    const prompt=buildSummaryPrompt(p)+'\n\nตอบเป็น JSON เท่านั้น รูปแบบ {"good":["..."],"grow":["..."]} โดย good=จุดเด่น 1-2 ข้อ, grow=ที่ต้องพัฒนาต่อ 2-3 ข้อ แต่ละข้อเป็นประโยคไทยสั้น สุภาพ ไม่โจมตี ห้ามมีข้อความอื่นนอก JSON';
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    let text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    text=text.replace(/```json|```/g,'').trim();
+    const obj=JSON.parse(text);
+    document.getElementById('ovGood-'+p).value=(obj.good||[]).join('\n');
+    document.getElementById('ovGrow-'+p).value=(obj.grow||[]).join('\n');
+  }catch(err){
+    alert('ให้ AI ช่วยร่างไม่สำเร็จ: '+err.message+'\n(ฟีเจอร์นี้ทำงานในสภาพแวดล้อม Artifact ของ Claude — ระหว่างนี้พิมพ์แก้เองแล้วกดบันทึกได้)');
+  }finally{ btn.disabled=false; btn.textContent=old; }
+}
+
 function bandOf(score){ return score>=70?{t:'ผ่าน',c:'ok'}:score>=50?{t:'ต้องพัฒนา',c:'warn'}:{t:'เสี่ยงไม่ผ่าน',c:'risk'}; }
 function renderOverview(){
   // FE summary
@@ -1045,6 +1219,8 @@ function renderOverview(){
   const entries=(state.ui.entries||[]); const n=entries.length;
   let latest='—'; if(n){ const ds=entries.map(e=>e.date).sort(); latest=fmtDate(ds[ds.length-1]); }
   const uiEl=document.getElementById('uiOv');
+  try{refreshAiMeta();}catch(e){}
+  try{renderOvsum('fe');renderOvsum('ui');}catch(e){}
   if(uiEl) uiEl.innerHTML =
     `<span class="ovband ${uiB.c}">${uiB.t}</span>`+
     `<span class="ovchip">บันทึก <b>${n}</b> วัน</span>`+
@@ -1060,6 +1236,8 @@ function showView(v){
   const nf=document.getElementById('nav-fe'), nu=document.getElementById('nav-ui');
   if(nf) nf.classList.toggle('on', v==='fe');
   if(nu) nu.classList.toggle('on', v==='ui');
+  if(v==='home'){ try{renderOverview();}catch(e){} }
+  try{refreshAiMeta();}catch(e){}
   if(v!=='home') window.scrollTo({top:0, behavior:'smooth'});
 }
 function switchTab(t){ showView(t); }  // backward-compat alias
@@ -1094,9 +1272,50 @@ function renderAll(){
   document.getElementById('logDate').value=new Date().toISOString().slice(0,10);
   renderThumbs(); renderEntries();
   renderOverview();
+  restoreAiSummary();
   showView('home');
 }
+
+/* ================= Cloud (domain) storage ================= */
+const CLOUD_KEY='vp_review_console_state';
+function hasCloud(){ return !!(window.storage && window.storage.get && window.storage.set); }
+function setSync(msg, kind){
+  const el=document.getElementById('syncFlag'); if(!el) return;
+  el.textContent=msg;
+  el.style.color = kind==='warn' ? 'var(--amber)' : (kind==='ok' ? 'var(--green)' : 'var(--muted2)');
+}
+function stripState(s){ const c=JSON.parse(JSON.stringify(s)); delete c._form; return c; }
+async function cloudLoad(){
+  if(!hasCloud()){ setSync('โหมดออฟไลน์ (บันทึกในเครื่อง)', 'warn'); return; }
+  setSync('◌ กำลังโหลดจากระบบ…');
+  try{
+    const r= await window.storage.get(CLOUD_KEY, true);
+    if(r && r.value){
+      const s=JSON.parse(r.value);
+      s._form={mood:'',imgs:[]};
+      state=ensureSeed(s);
+      editId=null;
+      renderAll();
+      setSync('✓ ซิงค์จากระบบแล้ว', 'ok');
+    } else {
+      setSync('ยังไม่มีข้อมูลบนระบบ — กด “บันทึกขึ้นระบบ”', 'warn');
+    }
+  }catch(e){ setSync('โหลดจากระบบไม่ได้ — ใช้ข้อมูลในเครื่อง', 'warn'); }
+}
+async function cloudSave(){
+  const btn=document.getElementById('cloudSaveBtn');
+  if(!hasCloud()){ alert('การบันทึกขึ้นระบบใช้ได้เมื่อเปิดในสภาพแวดล้อม Artifact ของ Claude\nระหว่างนี้ข้อมูลถูกเก็บในเครื่อง และใช้ “ส่งออก JSON” เพื่อย้ายเครื่องได้'); return; }
+  const old=btn.textContent; btn.disabled=true; btn.textContent='กำลังบันทึก…'; setSync('◌ กำลังบันทึกขึ้นระบบ…');
+  try{
+    await window.storage.set(CLOUD_KEY, JSON.stringify(stripState(state)), true);
+    setSync('✓ บันทึกขึ้นระบบแล้ว '+new Date().toLocaleTimeString('th-TH'), 'ok');
+    btn.textContent='บันทึกแล้ว ✓'; setTimeout(()=>btn.textContent=old, 1300);
+  }catch(e){ setSync('บันทึกขึ้นระบบไม่สำเร็จ', 'warn'); alert('บันทึกขึ้นระบบไม่สำเร็จ: '+e.message); btn.textContent=old; }
+  finally{ btn.disabled=false; }
+}
+
 renderAll();
+cloudLoad();
 </script>
 </body>
 </html>
